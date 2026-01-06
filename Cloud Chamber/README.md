@@ -1,0 +1,2 @@
+1:08 - 1:11
+Parts list is [here](https://airtable.com/invite/l?inviteId=inv1hwGXxtT4aerVi&inviteToken=10cdde91adfcc074f08270552b2c84148beb49d106d611853d8c1f5ddcb34af2&utm_medium=email&utm_source=product_team&utm_content=transactional-alerts)

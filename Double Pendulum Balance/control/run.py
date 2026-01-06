@@ -1,0 +1,38 @@
+from __future__ import division
+import numpy as np; npl = np.linalg
+from scipy.interpolate import interp1d
+import acrocart
+import time
+
+# Set-up dynamics and optimal controller
+dyn = acrocart.Dynamics()
+opt = acrocart.Optimizer(dyn, verbosity=5)
+
+# Frame problem
+q0 = [0, 0, 0, 0, 0, 0]
+qN = [1, np.pi, np.pi, 0, 0, 0]  #??? since this solver doesnt do angle error on SO2, pi and -pi are different
+tN = 4
+dt = 0.01
+goal = qN[0]
+H = np.array((50, 5, 1)) * dt
+rush = 0
+
+# Get optimal control
+opt_start_time = time.time()
+Topt, Uopt, Qopt, opt_success = opt.make_trajectory(q0, qN, tN, H, rush=rush)
+control = opt.make_controller(Topt, Uopt, Qopt)
+if not opt_success: print("OPTIMIZATION FAILED")
+else: print("OPTIMIZATION SUCCEEDED")
+print("TOTAL TIME TAKEN BY OPTIMIZATION: {}").format(np.round(time.time() - opt_start_time, 3))
+print("----------------------------------------\n")
+
+# Look at ideal plan or simulate its execution?
+override = None  # True or None
+if override:
+    print("(visualizing ideal scenario)")
+    override = interp1d(Topt, Qopt, kind="quadratic", assume_sorted=True,
+                        axis=0, bounds_error=False, fill_value=Qopt[-1])
+
+# Set-up simulator and run
+sim = acrocart.Simulator(dyn)
+sim.simulate(q0, control, tN=0, dt=dt, goal=goal, override=override, Des=(Topt, Qopt))
